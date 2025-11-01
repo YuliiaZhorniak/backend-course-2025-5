@@ -1,6 +1,7 @@
 const fs = require('fs');
 const { program} = require('commander');
 const http = require('http');
+const path = require('path');
 
 program
    .requiredOption('-h, --host <host>', 'server host')
@@ -13,10 +14,29 @@ if (!fs.existsSync(options.cache)) {
 fs.mkdirSync(options.cache, { recursive: true});
 }
 
- const server = http.createServer((req, res) => {
-res.writeHead(200, {"Content-Type": "text/plain; charset=utf-8"});
-res.end("Server is running");
+ const server = http.createServer(async (req, res) => {
+const fileName = path.basename(req.url);
+  const filePath = path.join(options.cache, `${fileName}.jpg`); 
+
+  try {
+    switch (req.method) {
+      case "GET":
+        try {
+          const data = await fs.promises.readFile(filePath);
+          res.writeHead(200, { "Content-Type": "image/jpeg" });
+          res.end(data);
+        } catch (err) {
+          res.writeHead(404, { "Content-Type": "text/plain; charset=utf-8" });
+          res.end("404 Not Found — image not found in cache");
+         }
+break;
+    }
+  } catch (err) {
+    res.writeHead(500, { "Content-Type": "text/plain; charset=utf-8" });
+    res.end("500 Internal Server Error");
+  }
 });
+
 server.listen(options.port, options.host, () => {
 console.log(`Server is running on http://${options.host}:${options.port}`);
 });
