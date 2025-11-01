@@ -30,6 +30,16 @@ const fileName = path.basename(req.url);
           res.end("404 Not Found — image not found in cache");
          }
 break;
+case "PUT":
+        const body = [];
+        req.on("data", (chunk) => body.push(chunk));
+        req.on("end", async () => {
+          const buffer = Buffer.concat(body);
+          await fs.promises.writeFile(filePath, buffer);
+          res.writeHead(201, { "Content-Type": "text/plain; charset=utf-8" });
+          res.end("201 Created — image saved to cache");
+        });
+        break;
     }
   } catch (err) {
     res.writeHead(500, { "Content-Type": "text/plain; charset=utf-8" });
