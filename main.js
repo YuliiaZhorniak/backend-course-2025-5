@@ -4,7 +4,7 @@ const http = require('http');
 const path = require('path');
 
 program
-   .requiredOption('-h, --host <host>', 'server host')
+   .requiredOption('-H, --host <host>', 'server host')
    .requiredOption('-p, --port <port>', 'server port')
    .requiredOption('-c, --cache <path>', 'server cache')
 program.parse(process.argv);
