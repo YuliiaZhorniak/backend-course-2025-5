@@ -40,6 +40,25 @@ case "PUT":
           res.end("201 Created — image saved to cache");
         });
         break;
+case "DELETE":
+        try {
+          await fs.promises.unlink(filePath);
+          res.writeHead(200, { "Content-Type": "text/plain; charset=utf-8" });
+          res.end("200 OK — image deleted");
+        } catch (err) {
+          if (err.code === "ENOENT") {
+            res.writeHead(404, { "Content-Type": "text/plain; charset=utf-8" });
+            res.end("404 Not Found — image not found");
+          } else {
+            res.writeHead(500, { "Content-Type": "text/plain; charset=utf-8" });
+            res.end("500 Internal Server Error");
+          }
+        }
+        break;
+default:
+        res.writeHead(405, { "Content-Type": "text/plain; charset=utf-8" });
+        res.end("405 Method Not Allowed");
+        break;
     }
   } catch (err) {
     res.writeHead(500, { "Content-Type": "text/plain; charset=utf-8" });
