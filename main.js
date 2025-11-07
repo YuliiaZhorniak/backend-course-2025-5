@@ -2,6 +2,7 @@ const fs = require('fs');
 const { program} = require('commander');
 const http = require('http');
 const path = require('path');
+const superagent = require('superagent');
 
 program
    .requiredOption('-H, --host <host>', 'server host')
@@ -21,15 +22,27 @@ const fileName = path.basename(req.url);
   try {
     switch (req.method) {
       case "GET":
-        try {
-          const data = await fs.promises.readFile(filePath);
-          res.writeHead(200, { "Content-Type": "image/jpeg" });
-          res.end(data);
-        } catch (err) {
-          res.writeHead(404, { "Content-Type": "text/plain; charset=utf-8" });
-          res.end("404 Not Found — image not found in cache");
-         }
-break;
+  try {
+    const data = await fs.promises.readFile(filePath);
+    res.writeHead(200, { "Content-Type": "image/jpeg" });
+    res.end(data);
+  } catch (err) {
+    try {
+      const url = `https://http.cat/${fileName}.jpg`;
+      const superagent = require("superagent");
+      const response = await superagent.get(url).buffer(true);
+      const imgBuffer = response.body;
+      await fs.promises.writeFile(filePath, imgBuffer);
+      res.writeHead(200, { "Content-Type": "image/jpeg" });
+      res.end(imgBuffer);
+    } catch (fetchErr) {
+      res.writeHead(404, { "Content-Type": "text/plain; charset=utf-8" });
+      res.end("404 Not Found — не вдалося отримати картинку з http.cat");
+    }
+  }
+  break;
+
+
 case "PUT":
         const body = [];
         req.on("data", (chunk) => body.push(chunk));
