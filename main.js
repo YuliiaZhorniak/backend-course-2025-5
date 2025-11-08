@@ -29,7 +29,6 @@ const fileName = path.basename(req.url);
   } catch (err) {
     try {
       const url = `https://http.cat/${fileName}.jpg`;
-      const superagent = require("superagent");
       const response = await superagent.get(url).buffer(true);
       const imgBuffer = response.body;
       await fs.promises.writeFile(filePath, imgBuffer);
